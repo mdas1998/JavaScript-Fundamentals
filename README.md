@@ -7,7 +7,7 @@ Each folder is named after the topic it covers, with code examples and explanati
 
 ## 📂 Topics Covered
 - Each folder corresponds to a specific JavaScript concept.
-- Inside, you'll find example `.js` and `.html` files demonstrating the topic.
+- Inside, you'll find example `.js` file demonstrating the topic.
 
 ---
 
