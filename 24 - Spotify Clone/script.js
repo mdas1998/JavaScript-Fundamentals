@@ -1,4 +1,3 @@
-console.log("Hello there!");
 let songs = [];
 let currFolder;
 
@@ -19,7 +18,8 @@ function formatTime(seconds) {
 const playMusic = (track, pause = false) => {
   // always stop current and load new source
   currentSong.pause();
-  currentSong.src = `/24 - Spotify Clone/${currFolder}/` + encodeURIComponent(track);
+  currentSong.src =
+    `/24 - Spotify Clone/${currFolder}/` + encodeURIComponent(track);
   currentSong.load();
 
   // update UI immediately for a fresh load
@@ -72,7 +72,9 @@ async function getSongs(folder) {
   currFolder = folder;
 
   try {
-    const a = await fetch(`http://127.0.0.1:3000/24%20-%20Spotify%20Clone/${folder}/`);
+    const a = await fetch(
+      `http://127.0.0.1:3000/24%20-%20Spotify%20Clone/${folder}/`
+    );
     const response = await a.text();
 
     const element = document.createElement("div");
@@ -88,8 +90,6 @@ async function getSongs(folder) {
         songs.push(filename);
       }
     }
-
-    console.log("Songs fetched:", songs);
 
     // Rebuild the sidebar list
     const songUL = document.querySelector(".songsList ul");
@@ -118,14 +118,72 @@ async function getSongs(folder) {
   }
 }
 
+async function displayAlbums() {
+  const a = await fetch(
+    `http://127.0.0.1:3000/24%20-%20Spotify%20Clone/songs/`
+  );
+  const response = await a.text();
+  let div = document.createElement("div");
+  div.innerHTML = response;
+  let anchors = div.getElementsByTagName("a");
+  let cardContainer = document.querySelector(".cardContainer");
+  let array = Array.from(anchors);
+  for (let index = 0; index < array.length; index++) {
+    const e = array[index];
+
+    if (e.href.includes("/songs")) {
+      let folder = e.href.split("/").slice(-2)[0];
+      console.log(folder);
+      // Get the metadata of the folder
+      const a = await fetch(
+        `http://127.0.0.1:3000/24%20-%20Spotify%20Clone/songs/${folder}/info.json`
+      );
+      const response = await a.json();
+      cardContainer.innerHTML =
+        cardContainer.innerHTML += `
+  <article data-folder="${folder}" class="card" tabindex="0">
+        <button class="play" aria-label="Play ${response.title}">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+            <path d="M8 5l11 7-11 7z" fill="#000" />
+          </svg>
+        </button>
+        <img src="songs/${folder}/img1.jpg" alt="Cover art for ${response.title} playlist">
+        <h2>${response.title}</h2>
+        <p>${response.Description}</p>
+  </article>
+`;
+
+    }
+  }
+  // Load a new playlist when card is clicked (load PAUSED)
+  Array.from(document.getElementsByClassName("card")).forEach((card) => {
+    card.addEventListener("click", async (e) => {
+      const folder = e.currentTarget.dataset.folder;
+      console.log(folder);
+      songs = (await getSongs(`songs/${folder}`)) || [];
+
+      if (songs.length > 0) {
+        // Load first song PAUSED and show play icon
+        playMusic(songs[0], true);
+      } else {
+        console.warn("No songs found in folder:", folder);
+      }
+    });
+  });
+}
+
 async function main() {
   await getSongs("songs/CS");
   playMusic(songs[0], true); // load paused by default
 
+  // Display all the albums on the page
+  displayAlbums();
+
   // Update displayed duration on load (even if paused)
   currentSong.addEventListener("loadedmetadata", () => {
-    document.querySelector(".songtime").innerHTML =
-      `00:00 / ${formatTime(currentSong.duration)}`;
+    document.querySelector(".songtime").innerHTML = `00:00 / ${formatTime(
+      currentSong.duration
+    )}`;
     document.querySelector(".circle").style.left = "0%";
   });
 
@@ -159,8 +217,8 @@ async function main() {
 
   // Seekbar click
   document.querySelector(".seekbar").addEventListener("click", (e) => {
-    const pct = (e.offsetX / e.target.getBoundingClientRect().width);
-    document.querySelector(".circle").style.left = (pct * 100) + "%";
+    const pct = e.offsetX / e.target.getBoundingClientRect().width;
+    document.querySelector(".circle").style.left = pct * 100 + "%";
     currentSong.currentTime = currentSong.duration * pct;
   });
 
@@ -229,7 +287,8 @@ async function main() {
   // Volume toggle & slider
   const volume = document.querySelector(".volume");
   const volumeIcon = document.querySelector(".volume-icon");
-  const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+  const isTouchDevice =
+    "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
   if (isTouchDevice) {
     volumeIcon.addEventListener("click", (e) => {
@@ -250,23 +309,6 @@ async function main() {
       currentSong.volume = e.target.value;
     });
   }
-
-  // Load a new playlist when card is clicked (load PAUSED)
-  Array.from(document.getElementsByClassName("card")).forEach(card => {
-    card.addEventListener("click", async (e) => {
-      const folder = e.currentTarget.dataset.folder;
-      console.log("Loading folder:", folder);
-
-      songs = await getSongs(`songs/${folder}`) || [];
-
-      if (songs.length > 0) {
-        // Load first song PAUSED and show play icon
-        playMusic(songs[0], true);
-      } else {
-        console.warn("No songs found in folder:", folder);
-      }
-    });
-  });
 }
 
 main();
