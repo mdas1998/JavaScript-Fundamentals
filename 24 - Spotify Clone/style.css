@@ -39,7 +39,8 @@ body {
   overflow-x: hidden;
 }
 
-body, html {
+body,
+html {
   height: 100%;
   margin: 0;
 }
@@ -49,7 +50,8 @@ body, html {
   display: flex;
   gap: 15px;
   padding: 15px;
-  height: 100vh; /* ✅ subtract playbar height */
+  height: 100vh;
+  /* ✅ subtract playbar height */
   box-sizing: border-box;
 }
 
@@ -81,7 +83,8 @@ body, html {
   width: 25vw;
   display: flex;
   flex-direction: column;
-  height: 100%;  /* ✅ match right section height */
+  height: 100%;
+  /* ✅ match right section height */
   overflow: hidden;
 }
 
@@ -89,7 +92,8 @@ body, html {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;  /* ✅ match left section height */
+  height: 100%;
+  /* ✅ match left section height */
   overflow: hidden;
 }
 
@@ -126,7 +130,8 @@ body, html {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 15px;   /* ✅ gives margin-like spacing inside */
+  padding: 15px;
+  /* ✅ gives margin-like spacing inside */
   box-sizing: border-box;
 }
 
@@ -294,6 +299,7 @@ body, html {
   gap: 8px;
   border-radius: var(--radius);
   position: relative;
+  /* ✅ make .playbar a positioning parent */
 }
 
 .songbuttons {
@@ -410,39 +416,85 @@ body, html {
   display: none;
 }
 
+/* The volume container now controls the hover state */
 .volume {
-  position: absolute;   /* ✅ take it out of normal flow */
-  top: 21px;            /* adjust spacing from top */
-  right: 30px;          /* align with playbar’s padding */
+  position: absolute;
+  top: 50%;
+  right: 143px;
+  display: flex;
+  align-items: center;
+  /* This is the key change */
+  transform: translateY(-50%);
+  /* Centers the entire volume container vertically */
+  gap: 10px;
+  /* Adds space between the icon and the slider */
 }
 
-.volume img {
-  width: 25px;          /* smaller size looks cleaner */
+.volume-icon {
+  width: 24px;
+  height: auto;
   cursor: pointer;
+}
+
+.volume-slider {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s 0.25s;
+  width: 120px;
+  accent-color: var(--text);
+  cursor: pointer;
+}
+
+/* show state */
+/* Now, hovering on the parent (.volume) makes the child (.volume-slider) appear */
+.volume:hover .volume-slider,
+.volume.open .volume-slider {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* desktop hover (only on non-touch screens) */
+@media (hover: hover) and (pointer: fine) {
+  .volume:hover .volume-slider {
+    display: block;
+  }
 }
 
 /* ===============================
    Responsive (Mobile Devices)
    ================================ */
 
-@media (max-width: 1400px) {
+@media (max-width: 1200px) {
   .container {
     gap: 0;
     padding: 0;
   }
+
   .left,
-  .right, .playbar {
-    border-radius: 0; /* if you’re using rounded corners */
+  .right,
+  .playbar {
+    border-radius: 0;
+    /* if you’re using rounded corners */
   }
-  h1, h2, h3 {
-    margin: 0;       /* remove heading margins */
-    padding: 10px;   /* optional: small padding for breathing space */
+
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    /* remove heading margins */
+    padding: 10px;
+    /* optional: small padding for breathing space */
   }
+
   .left {
-    display: none;  /* hidden by default on small screens */
+    display: none;
+    /* hidden by default on small screens */
   }
+
   .left.active {
-    display: flex;  /* visible when hamburger adds "active" */
+    display: flex;
+    /* visible when hamburger adds "active" */
     position: fixed;
     top: 0;
     left: 0;
@@ -457,17 +509,22 @@ body, html {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;  /* ✅ allows flex children to shrink */
+    min-height: 0;
+    /* ✅ allows flex children to shrink */
   }
 
   .songsList {
-    flex: 1;            /* ✅ takes all remaining height */
-    overflow-y: auto;   /* ✅ scrollable */
-    padding-right: 6px; /* ✅ so scrollbar doesn’t overlap text */
+    flex: 1;
+    /* ✅ takes all remaining height */
+    overflow-y: auto;
+    /* ✅ scrollable */
+    padding-right: 6px;
+    /* ✅ so scrollbar doesn’t overlap text */
   }
 
   .footer {
-    flex-shrink: 0;     /* ✅ fixed at bottom */
+    flex-shrink: 0;
+    /* ✅ fixed at bottom */
     margin-top: auto;
   }
 
@@ -488,8 +545,30 @@ body, html {
     width: 30px;
     display: block;
   }
+
+  /* ... (other mobile styles) */
+
   .volume {
     position: static;
-    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    /* Optional, but good for alignment */
+    justify-content: center;
+    gap: 10px;
+    margin: 10px;
+  }
+
+  .volume-slider {
+    position: static;
+    width: 120px;
+    /* The core change */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+  }
+
+  .volume.open .volume-slider {
+    opacity: 1;
+    visibility: visible;
   }
 }
